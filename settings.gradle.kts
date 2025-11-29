@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BaseApp"
+rootProject.name = "Sorio"
 include(":app")
  
