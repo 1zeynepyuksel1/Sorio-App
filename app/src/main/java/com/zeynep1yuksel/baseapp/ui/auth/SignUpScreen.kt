@@ -32,13 +32,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.zeynep1yuksel.baseapp.ui.components.SorioBackButton
 import com.zeynep1yuksel.baseapp.ui.components.SorioButton
 import com.zeynep1yuksel.baseapp.ui.components.SorioTextField
 import com.zeynep1yuksel.baseapp.ui.theme.backgroundColor
 import com.zeynep1yuksel.baseapp.ui.theme.buttonContentColor
 
 @Composable
-fun SignUpScreen() {
+fun SignUpScreen(onLoginClick:()->Unit,onBackClick:()->Unit) {
     var name by remember{ mutableStateOf("") }
     var surname by remember {mutableStateOf("")}
     var email by remember {mutableStateOf("")}
@@ -53,6 +54,7 @@ fun SignUpScreen() {
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.Top
     ){
+        SorioBackButton(onClick = onBackClick)
         Spacer(modifier= Modifier.height(60.dp))
         Text(
             text=buildAnnotatedString {
@@ -90,7 +92,7 @@ fun SignUpScreen() {
                     append("Log in")
                 }
             },
-            modifier = Modifier.clickable{}
+            modifier = Modifier.clickable{onLoginClick()}
         )
         Spacer(modifier = Modifier.height(35.dp))
         SorioTextField(
@@ -132,7 +134,8 @@ fun SignUpScreen() {
         SorioButton(
             text="Sign up",
             containerColor = buttonContentColor,
-            contentColor = Color.White
+            contentColor = Color.White,
+            onClick = {}
         )
     }
 }
@@ -140,5 +143,5 @@ fun SignUpScreen() {
 @Preview
 @Composable
 private fun PreviewSignUpScreen() {
-    SignUpScreen()
+    SignUpScreen(onLoginClick = {}, onBackClick = {})
 }

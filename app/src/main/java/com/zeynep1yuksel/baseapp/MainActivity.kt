@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.zeynep1yuksel.baseapp.ui.auth.LogInScreen
 import com.zeynep1yuksel.baseapp.ui.auth.SignUpScreen
 import com.zeynep1yuksel.baseapp.ui.auth.StartScreen
+import com.zeynep1yuksel.baseapp.ui.navigation.AppNavigation
 import com.zeynep1yuksel.baseapp.ui.theme.BaseAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,7 +26,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BaseAppTheme {
-                SignUpScreen()
+                AppNavigation()
             }
         }
     }

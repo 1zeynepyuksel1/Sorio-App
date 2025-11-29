@@ -67,13 +67,14 @@ fun StartScreen(
             SorioButton(text="Log In",
                 containerColor=buttonContentColor,
                 contentColor=Color.White,
+                onClick = onLoginClick
             )
             Text("New to Sorio?",
                 fontFamily = textFont,
                 color = Color.DarkGray,
                 fontSize = 15.sp
             )
-            SorioButton("Sign Up",Color.White,buttonContentColor)
+            SorioButton("Sign Up",Color.White,buttonContentColor, onClick = onRegisterClick)
         }
 
     }

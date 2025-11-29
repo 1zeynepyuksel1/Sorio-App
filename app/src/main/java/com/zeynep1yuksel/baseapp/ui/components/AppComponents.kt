@@ -1,12 +1,18 @@
 package com.zeynep1yuksel.baseapp.ui.components
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -19,11 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zeynep1yuksel.baseapp.ui.auth.textFont
 import com.zeynep1yuksel.baseapp.ui.theme.buttonContentColor
+import com.zeynep1yuksel.baseapp.ui.theme.darkBlue
 
 @Composable
-fun SorioButton(text: String, containerColor: Color, contentColor: Color) {
+fun SorioButton(text: String, containerColor: Color, contentColor: Color,onClick:()->Unit) {
     Button(
-        onClick = {},
+        onClick = onClick,
         shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor.copy(0.85f),
@@ -79,4 +86,16 @@ fun SorioTextField(
             .fillMaxWidth()
             .padding(bottom = 16.dp)
     )
+}
+
+@Composable
+fun SorioBackButton(onClick:()->Unit) {
+    IconButton(onClick=onClick, modifier = Modifier.padding(top=10.dp)) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = "Back",
+            tint= buttonContentColor,
+            modifier= Modifier.size(32.dp)
+        )
+    }
 }

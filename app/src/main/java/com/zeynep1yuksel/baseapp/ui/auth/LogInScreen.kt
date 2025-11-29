@@ -44,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zeynep1yuksel.baseapp.R
+import com.zeynep1yuksel.baseapp.ui.components.SorioBackButton
 import com.zeynep1yuksel.baseapp.ui.components.SorioButton
 import com.zeynep1yuksel.baseapp.ui.components.SorioTextField
 import com.zeynep1yuksel.baseapp.ui.theme.backgroundColor
@@ -52,7 +53,7 @@ import com.zeynep1yuksel.baseapp.ui.theme.darkBlue
 import kotlin.math.log
 
 @Composable
-fun LogInScreen() {
+fun LogInScreen(onRegisterClick:()->Unit,onBackClick:()->Unit) {
     var username by remember{ mutableStateOf("") }
     var password by remember{mutableStateOf("")}
     Column(modifier = Modifier
@@ -60,6 +61,7 @@ fun LogInScreen() {
         .background(color=backgroundColor)
         .padding(32.dp),
         verticalArrangement = Arrangement.Top) {
+        SorioBackButton(onClick = onBackClick)
         Spacer(modifier=Modifier.height(100.dp))
         Text("welcome back", color = Color.Black, fontSize = 35.sp, fontFamily = logoFont)
         Text(
@@ -94,7 +96,7 @@ fun LogInScreen() {
                     append("Create new")
                 }
             },
-            modifier = Modifier.clickable {  }
+            modifier = Modifier.clickable { onRegisterClick() }
         )
         Spacer(modifier=Modifier.height(75.dp))
         SorioTextField(
@@ -123,12 +125,12 @@ fun LogInScreen() {
             modifier = Modifier.clickable {  }
         )
         Spacer(modifier=Modifier.height(25.dp))
-        SorioButton(text="Log in", containerColor = buttonContentColor, contentColor = Color.White)
+        SorioButton(text="Log in", containerColor = buttonContentColor, contentColor = Color.White, onClick = {})
 
     }
 }
 @Preview
 @Composable
 private fun LogInScreenPreview() {
-    LogInScreen()
+    LogInScreen(onRegisterClick = {}, onBackClick = {})
 }
