@@ -53,7 +53,7 @@ import com.zeynep1yuksel.baseapp.ui.theme.darkBlue
 import kotlin.math.log
 
 @Composable
-fun LogInScreen(onRegisterClick:()->Unit,onBackClick:()->Unit) {
+fun LogInScreen(onRegisterClick:()->Unit,onBackClick:()->Unit,onHomeClick:()->Unit) {
     var username by remember{ mutableStateOf("") }
     var password by remember{mutableStateOf("")}
     Column(modifier = Modifier
@@ -125,12 +125,12 @@ fun LogInScreen(onRegisterClick:()->Unit,onBackClick:()->Unit) {
             modifier = Modifier.clickable {  }
         )
         Spacer(modifier=Modifier.height(25.dp))
-        SorioButton(text="Log in", containerColor = buttonContentColor, contentColor = Color.White, onClick = {})
+        SorioButton(text="Log in", containerColor = buttonContentColor, contentColor = Color.White, onClick = {onHomeClick()})
 
     }
 }
 @Preview
 @Composable
 private fun LogInScreenPreview() {
-    LogInScreen(onRegisterClick = {}, onBackClick = {})
+    LogInScreen(onRegisterClick = {}, onBackClick = {}, onHomeClick = {})
 }

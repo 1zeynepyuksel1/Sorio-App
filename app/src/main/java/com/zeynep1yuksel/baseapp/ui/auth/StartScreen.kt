@@ -2,6 +2,7 @@ package com.zeynep1yuksel.baseapp.ui.auth
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -43,18 +44,26 @@ fun StartScreen(
         .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally){
         Box(modifier= Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center){
-            Text("sorio",
-                fontFamily = logoFont,
-                color=buttonContentColor,
-                fontSize = 85.sp,
-                style = TextStyle(
-                    shadow = Shadow(
-                        color=Color.Black.copy(alpha=0.5f),
-                        offset = Offset(4f,8f),
-                        blurRadius = 12f
+            Column(horizontalAlignment = Alignment.CenterHorizontally){
+                Text("sorio",
+                    fontFamily = logoFont,
+                    color=buttonContentColor,
+                    fontSize = 85.sp,
+                    style = TextStyle(
+                        shadow = Shadow(
+                            color=Color.Black.copy(alpha=0.5f),
+                            offset = Offset(4f,8f),
+                            blurRadius = 12f
+                        )
                     )
                 )
+                Text(
+                    text="ready to learn?",
+                    color=Color.DarkGray,
+                    fontSize=20.sp
                 )
+            }
+
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(bottom=50.dp)){
             Text("Already a Sorio?",

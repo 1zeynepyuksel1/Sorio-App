@@ -9,6 +9,7 @@ import com.zeynep1yuksel.baseapp.ui.auth.LogInScreen
 import com.zeynep1yuksel.baseapp.ui.auth.SignUpScreen
 import com.zeynep1yuksel.baseapp.ui.auth.StartScreen
 import androidx.navigation.compose.composable
+import com.zeynep1yuksel.baseapp.ui.auth.HomeScreen
 
 @Composable
 fun AppNavigation() {
@@ -20,10 +21,18 @@ fun AppNavigation() {
                 onRegisterClick = {navController.navigate("signup")})
         }
         composable("login"){
-            LogInScreen(onRegisterClick = {navController.navigate("signup"){popUpTo("start"){inclusive=false} } }, onBackClick = {navController.popBackStack()})
+            LogInScreen(onRegisterClick = {navController.navigate("signup"){popUpTo("start"){inclusive=false} } },
+                onBackClick = {navController.popBackStack()},
+                onHomeClick = {navController.navigate("home")}
+            )
         }
         composable("signup"){
-            SignUpScreen(onLoginClick = {navController.navigate("login"){popUpTo("start"){inclusive=false} }}, onBackClick = {navController.popBackStack()})
+            SignUpScreen(onLoginClick = {navController.navigate("login"){popUpTo("start"){inclusive=false} }},
+                onBackClick = {navController.popBackStack()},
+                onHomeClick = {navController.navigate("home")})
+        }
+        composable ("home"){
+            HomeScreen()
         }
     }
 }

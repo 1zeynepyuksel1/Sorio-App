@@ -8,6 +8,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -17,10 +20,16 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zeynep1yuksel.baseapp.ui.auth.textFont
@@ -43,6 +52,80 @@ fun SorioButton(text: String, containerColor: Color, contentColor: Color,onClick
     ) {
         Text(text)
     }
+}
+@Composable
+fun SamplePasswordField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String = "Password" // Varsayılan etiket
+) {
+    // Şifrenin görünüp görünmediğini takip eden değişken
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+
+        // Etiket (Senin fontunla)
+        label = {
+            Text(
+                text = label,
+                fontFamily = textFont,
+                fontSize = 14.sp
+            )
+        },
+
+        // Sol İkon (Kilit)
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Lock,
+                contentDescription = "Lock Icon",
+                tint = Color.Gray
+            )
+        },
+
+        // Sağ İkon (Göz - Tıklanabilir)
+        trailingIcon = {
+            val image = if (passwordVisible)
+                Icons.Default.Visibility     // Açık Göz
+            else
+                Icons.Default.VisibilityOff  // Kapalı Göz
+
+            // Butona basılınca 'passwordVisible' değerini tersine çevirir (true <-> false)
+            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                Icon(
+                    imageVector = image,
+                    contentDescription = "Toggle Password",
+                    tint = Color.Gray
+                )
+            }
+        },
+
+        // --- SİHİRLİ KISIM ---
+        // Görünürse: VisualTransformation.None (Düz yazı)
+        // Gizliyse: PasswordVisualTransformation (Noktalı)
+        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+
+        // Tasarım Ayarları (Senin diğer alanlarınla aynı)
+        shape = RoundedCornerShape(12.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = buttonContentColor, // Odaklanınca senin rengin
+            focusedLabelColor = buttonContentColor,
+            cursorColor = buttonContentColor,
+
+            unfocusedBorderColor = Color.LightGray,
+            unfocusedLabelColor = Color.Gray,
+
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White
+        ),
+
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), // Klavye şifre modunda açılsın
+        singleLine = true, // Tek satır
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp) // Altına biraz boşluk
+    )
 }
 @Composable
 fun SorioTextField(
