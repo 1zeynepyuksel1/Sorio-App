@@ -1,5 +1,7 @@
 package com.zeynep1yuksel.baseapp.ui.auth
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +34,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -44,6 +47,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zeynep1yuksel.baseapp.R
+import com.zeynep1yuksel.baseapp.data.SorioAuth
+import com.zeynep1yuksel.baseapp.ui.components.SamplePasswordField
 import com.zeynep1yuksel.baseapp.ui.components.SorioBackButton
 import com.zeynep1yuksel.baseapp.ui.components.SorioButton
 import com.zeynep1yuksel.baseapp.ui.components.SorioTextField
@@ -54,8 +59,10 @@ import kotlin.math.log
 
 @Composable
 fun LogInScreen(onRegisterClick:()->Unit,onBackClick:()->Unit,onHomeClick:()->Unit) {
-    var username by remember{ mutableStateOf("") }
+    var email by remember{ mutableStateOf("") }
     var password by remember{mutableStateOf("")}
+    val context = LocalContext.current
+    val authManager = remember{ SorioAuth(context) }
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color=backgroundColor)
@@ -100,18 +107,16 @@ fun LogInScreen(onRegisterClick:()->Unit,onBackClick:()->Unit,onHomeClick:()->Un
         )
         Spacer(modifier=Modifier.height(75.dp))
         SorioTextField(
-            value=username,
-            onValueChange = {username=it},
-            label="username",
-            icon=Icons.Default.AccountBox,
-            keyboardType = KeyboardType.Text
+            value=email,
+            onValueChange = {email=it},
+            label="email",
+            icon=Icons.Default.Email,
+            keyboardType = KeyboardType.Email
         )
-        SorioTextField(
+        SamplePasswordField(
             value=password,
             onValueChange = {password=it},
-            label="password",
-            icon=Icons.Default.Lock,
-            keyboardType = KeyboardType.Password
+            label="password"
         )
         Text(
             text = buildAnnotatedString {
@@ -125,8 +130,20 @@ fun LogInScreen(onRegisterClick:()->Unit,onBackClick:()->Unit,onHomeClick:()->Un
             modifier = Modifier.clickable {  }
         )
         Spacer(modifier=Modifier.height(25.dp))
-        SorioButton(text="Log in", containerColor = buttonContentColor, contentColor = Color.White, onClick = {onHomeClick()})
-
+        SorioButton(
+            text="Log in",
+            containerColor = buttonContentColor,
+            contentColor = Color.White,
+            onClick = {
+                /*authManager.signIn(
+                    email=email,
+                    password=password,
+                    onSuccess = {
+                        onHomeClick()
+                    }
+                )*/
+                onHomeClick()
+            })
     }
 }
 @Preview

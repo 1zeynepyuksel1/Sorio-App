@@ -11,6 +11,9 @@ plugins {
 android {
     namespace = "com.zeynep1yuksel.baseapp"
     compileSdk = 36
+    aaptOptions {
+        noCompress += "tflite"
+    }
 
     defaultConfig {
         applicationId = "com.zeynep1yuksel.baseapp"
@@ -86,4 +89,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.firebase:firebase-auth")
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+    implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
 }

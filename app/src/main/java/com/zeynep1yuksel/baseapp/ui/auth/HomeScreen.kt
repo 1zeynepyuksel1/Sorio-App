@@ -1,6 +1,11 @@
 package com.zeynep1yuksel.baseapp.ui.auth
 
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
@@ -54,18 +59,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.zeynep1yuksel.baseapp.ml.SorioClassifier
+import com.zeynep1yuksel.baseapp.ui.components.QuestionPostCard
 import com.zeynep1yuksel.baseapp.ui.theme.backgroundColor
 import com.zeynep1yuksel.baseapp.ui.theme.buttonContentColor
 
 data class BottomNavItem(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
 @Composable
 fun HomeScreen() {
+    val context = LocalContext.current
     var selectedTab by remember{mutableStateOf(0)}
+    val classifier = remember { SorioClassifier(context) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var resultText by remember { mutableStateOf("Analiz ediliyor...") }
     val navItems = listOf(
         BottomNavItem("Home", Icons.Default.Home),
         BottomNavItem("Notifications", Icons.Default.Notifications),
@@ -73,6 +85,27 @@ fun HomeScreen() {
         BottomNavItem("Timer", Icons.Default.Timer),
         BottomNavItem("Profile", Icons.Default.Person)
     )
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            selectedImageUri = uri
+            try {
+                val bitmap = if (Build.VERSION.SDK_INT < 28) {
+                    MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                } else {
+                    val source = ImageDecoder.createSource(context.contentResolver, uri)
+                    ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true)
+                }
+                val sonuc = classifier.classify(bitmap)
+                resultText = sonuc
+                selectedTab = 0
+
+            } catch (e: Exception) {
+                Toast.makeText(context, "Hata: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
     Scaffold(
         bottomBar = {
             NavigationBar(
@@ -84,7 +117,7 @@ fun HomeScreen() {
                     selected = selectedTab == index && index!=2,
                     onClick = {
                         if(index==2){
-                            /*kamera açılacak*/
+                            galleryLauncher.launch("image/*")
                         }else{
                             selectedTab=index
                         }
@@ -157,7 +190,7 @@ fun HomeScreen() {
             }
             Spacer(modifier = Modifier.height(32.dp))
             when(selectedTab){
-                0->HomeContent()
+                0->HomeContent(selectedImageUri,resultText)
                 1->NotificationContent()
                 2->{}
                 3->TimerContent()
@@ -172,23 +205,56 @@ private fun PreviewHomeScreen() {
     HomeScreen()
 }
 @Composable
-fun HomeContent() {
-    Text(
-        "Community",
-        fontSize = 20.sp,
-        fontWeight = FontWeight.Bold,
-        color = buttonContentColor
-    )
-    Spacer(modifier = Modifier.height(16.dp))
-    LazyColumn(contentPadding = PaddingValues(bottom=100.dp)){
-        items(5){index->
-            QuestionPostCard(
-                userName = "Student $index",
-                subject = if(index%2==0) "Matematik * Türev" else "Fizik * Kuvvet",
-                questionPreview = "Soru Fotoğrafı *$index"
-            )
+fun HomeContent(imageUri: Uri?, resultText: String) {
+    if (imageUri != null) {
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(4.dp),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth().height(320.dp) // Yüksekliği artırdık
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(imageUri),
+                    contentDescription = null,
+                    modifier = Modifier.size(200.dp).padding(10.dp),
+                    contentScale = ContentScale.Crop
+                )
+
+                // YAPAY ZEKA SONUCU
+                Text(
+                    text = resultText,
+                    color = buttonContentColor,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
         }
     }
+    else{
+        Text(
+            "Community",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = buttonContentColor
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        LazyColumn(contentPadding = PaddingValues(bottom=100.dp)){
+            items(5){index->
+                QuestionPostCard(
+                    userName = "Student $index",
+                    subject = if(index%2==0) "Matematik * Türev" else "Fizik * Kuvvet",
+                    questionPreview = "Soru Fotoğrafı *$index"
+                )
+            }
+        }
+    }
+
 }
 @Composable
 fun ProfileContent() {
@@ -217,48 +283,5 @@ fun NotificationContent() {
         }
     }
 }
-@Composable
-fun QuestionPostCard(userName: String, subject: String, questionPreview: String) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(16.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(
-                    shape = CircleShape,
-                    color = backgroundColor,
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.padding(8.dp), tint = Color.Gray)
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(text = userName, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = buttonContentColor)
-                    Text(text = subject, fontSize = 12.sp, color = Color.Gray)
-                }
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp)
-                    .background(Color(0xFFEEEEEE), RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = questionPreview, color = Color.Gray)
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Row {
-                Icon(Icons.Default.FavoriteBorder, contentDescription = "Like", tint = buttonContentColor)
-                Spacer(modifier = Modifier.width(16.dp))
-                Icon(Icons.Default.Comment, contentDescription = "Comment", tint = buttonContentColor)
-            }
-        }
-    }
-}
+
 

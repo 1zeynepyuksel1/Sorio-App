@@ -140,7 +140,7 @@ fun SignUpScreen(onLoginClick: () -> Unit, onBackClick: () -> Unit, onHomeClick:
             onClick = { if (password == confirmPassword) {
                 authManager.signUp(
                     email = email,
-                    sifre = password,
+                    password = password,
                     onSuccess = {
                         onHomeClick()
                     }

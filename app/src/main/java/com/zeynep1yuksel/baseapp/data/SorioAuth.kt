@@ -3,18 +3,15 @@ package com.zeynep1yuksel.baseapp.data
 import android.content.Context
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
-
-
 class SorioAuth(private val context: Context) {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-
-    fun signUp(email: String, sifre: String, onSuccess: () -> Unit) {
+    fun signUp(email: String, password: String, onSuccess: () -> Unit) {
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Toast.makeText(context, "Geçersiz email formatı!", Toast.LENGTH_SHORT).show()
             return
         }
-        auth.createUserWithEmailAndPassword(email, sifre)
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { gorev ->
                 if (gorev.isSuccessful) {
                     val user = auth.currentUser
@@ -32,8 +29,8 @@ class SorioAuth(private val context: Context) {
                 }
             }
     }
-    fun signIn(email: String, sifre: String, onSuccess: () -> Unit) {
-        auth.signInWithEmailAndPassword(email, sifre)
+    fun signIn(email: String, password: String, onSuccess: () -> Unit) {
+        auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { gorev ->
                 if (gorev.isSuccessful) {
                     val user = auth.currentUser
