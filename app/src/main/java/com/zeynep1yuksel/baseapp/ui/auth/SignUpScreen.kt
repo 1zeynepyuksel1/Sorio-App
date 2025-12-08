@@ -34,6 +34,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zeynep1yuksel.baseapp.data.SorioAuth
 import com.zeynep1yuksel.baseapp.ui.components.SamplePasswordField
 import com.zeynep1yuksel.baseapp.ui.components.SorioBackButton
@@ -43,15 +44,15 @@ import com.zeynep1yuksel.baseapp.ui.theme.backgroundColor
 import com.zeynep1yuksel.baseapp.ui.theme.buttonContentColor
 
 @Composable
-fun SignUpScreen(onLoginClick: () -> Unit, onBackClick: () -> Unit, onHomeClick: () -> Unit) {
-    var name by remember { mutableStateOf("") }
-    var surname by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+fun SignUpScreen(
+    onLoginClick: () -> Unit,
+    onBackClick: () -> Unit,
+    onHomeClick: () -> Unit,
+    viewModel: SignUpViewModel=viewModel()
+) {
     val context = LocalContext.current
-    val authManager = remember { SorioAuth(context) }
     val scrollState = rememberScrollState()
+    val authManager = remember { SorioAuth(context) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -102,52 +103,50 @@ fun SignUpScreen(onLoginClick: () -> Unit, onBackClick: () -> Unit, onHomeClick:
         )
         Spacer(modifier = Modifier.height(35.dp))
         SorioTextField(
-            value = name,
-            onValueChange = { name = it },
+            value = viewModel.name,
+            onValueChange = viewModel::onNameChange,
             label = "name",
             icon = Icons.Default.AccountBox,
             keyboardType = KeyboardType.Text
         )
         SorioTextField(
-            value = surname,
-            onValueChange = { surname = it },
+            value = viewModel.surname,
+            onValueChange = viewModel::onSurnameChange,
             label = "surname",
             icon = Icons.Default.AccountBox,
             keyboardType = KeyboardType.Text
         )
         SorioTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = viewModel.email,
+            onValueChange = viewModel::onEmailChange,
             label = "email",
             icon = Icons.Default.Email,
             keyboardType = KeyboardType.Email
         )
         SamplePasswordField(
-            value = password,
-            onValueChange = { password = it },
+            value = viewModel.password,
+            onValueChange = viewModel::onPasswordChange,
             label = "password"
         )
         SamplePasswordField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
+            value = viewModel.confirmPassword,
+            onValueChange = viewModel::onConfirmPasswordChange,
             label = "confirm password"
         )
+        if (viewModel.errorMessage != null) {
+            Text(text = viewModel.errorMessage!!, color = Color.Red)
+        }
         Spacer(modifier = Modifier.height(25.dp))
         SorioButton(
-            text = "Sign up",
+            text =if (viewModel.isLoading) "Kaydediliyor..." else "Sign Up",
             containerColor = buttonContentColor,
             contentColor = Color.White,
-            onClick = { if (password == confirmPassword) {
-                authManager.signUp(
-                    email = email,
-                    password = password,
-                    onSuccess = {
-                        onHomeClick()
-                    }
+            onClick = {
+                viewModel.signUp(
+                    authManager = authManager,
+                    onSuccess=onHomeClick
                 )
-            } else {
-                Toast.makeText(context, "Şifreler uyuşmuyor!", Toast.LENGTH_SHORT).show()
-            } }
+            }
         )
     }
 }

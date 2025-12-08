@@ -1,4 +1,4 @@
-package com.zeynep1yuksel.baseapp.ui.auth
+package com.zeynep1yuksel.baseapp.ui.home
 
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -7,10 +7,8 @@ import android.os.Build
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,27 +20,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Comment
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Comment
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -57,22 +47,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.zeynep1yuksel.baseapp.ml.SorioClassifier
+import com.zeynep1yuksel.baseapp.ui.auth.logoFont
 import com.zeynep1yuksel.baseapp.ui.components.QuestionPostCard
 import com.zeynep1yuksel.baseapp.ui.theme.backgroundColor
 import com.zeynep1yuksel.baseapp.ui.theme.buttonContentColor
 
-data class BottomNavItem(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
+data class BottomNavItem(val label: String, val icon: ImageVector)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(viewModel: HomeViewModel= viewModel()) {
     val context = LocalContext.current
     var selectedTab by remember{mutableStateOf(0)}
     val classifier = remember { SorioClassifier(context) }
@@ -105,6 +97,11 @@ fun HomeScreen() {
                 Toast.makeText(context, "Hata: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+    val display=if(viewModel.currentUser!=null){
+        "${viewModel.currentUser?.name} ${viewModel.currentUser?.surname}"
+    }else{
+        "Loading"
     }
     Scaffold(
         bottomBar = {
@@ -185,7 +182,7 @@ fun HomeScreen() {
                             tint = buttonContentColor
                         )
                     }
-                    Text("Zeynep")
+                    Text(display)
                 }
             }
             Spacer(modifier = Modifier.height(32.dp))

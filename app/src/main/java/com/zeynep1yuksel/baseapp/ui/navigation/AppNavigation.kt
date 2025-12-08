@@ -1,7 +1,6 @@
 package com.zeynep1yuksel.baseapp.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 
 import androidx.navigation.compose.rememberNavController
@@ -9,7 +8,7 @@ import com.zeynep1yuksel.baseapp.ui.auth.LogInScreen
 import com.zeynep1yuksel.baseapp.ui.auth.SignUpScreen
 import com.zeynep1yuksel.baseapp.ui.auth.StartScreen
 import androidx.navigation.compose.composable
-import com.zeynep1yuksel.baseapp.ui.auth.HomeScreen
+import com.zeynep1yuksel.baseapp.ui.home.HomeScreen
 
 @Composable
 fun AppNavigation() {

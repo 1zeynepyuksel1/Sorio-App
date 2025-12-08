@@ -46,6 +46,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zeynep1yuksel.baseapp.R
 import com.zeynep1yuksel.baseapp.data.SorioAuth
 import com.zeynep1yuksel.baseapp.ui.components.SamplePasswordField
@@ -58,11 +59,14 @@ import com.zeynep1yuksel.baseapp.ui.theme.darkBlue
 import kotlin.math.log
 
 @Composable
-fun LogInScreen(onRegisterClick:()->Unit,onBackClick:()->Unit,onHomeClick:()->Unit) {
-    var email by remember{ mutableStateOf("") }
-    var password by remember{mutableStateOf("")}
+fun LogInScreen(
+    onRegisterClick:()->Unit,
+    onBackClick:()->Unit,
+    onHomeClick:()->Unit,
+    viewModel: LoginViewModel = viewModel()
+) {
     val context = LocalContext.current
-    val authManager = remember{ SorioAuth(context) }
+    val authManager = remember { SorioAuth(context) }
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color=backgroundColor)
@@ -107,17 +111,20 @@ fun LogInScreen(onRegisterClick:()->Unit,onBackClick:()->Unit,onHomeClick:()->Un
         )
         Spacer(modifier=Modifier.height(75.dp))
         SorioTextField(
-            value=email,
-            onValueChange = {email=it},
+            value=viewModel.email,
+            onValueChange = viewModel::onEmailChange,
             label="email",
             icon=Icons.Default.Email,
             keyboardType = KeyboardType.Email
         )
         SamplePasswordField(
-            value=password,
-            onValueChange = {password=it},
+            value=viewModel.password,
+            onValueChange = viewModel::onPasswordChange,
             label="password"
         )
+        if (viewModel.errorMessage != null) {
+            Text(text = viewModel.errorMessage!!, color = Color.Red)
+        }
         Text(
             text = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = Color.Gray)) {
@@ -135,14 +142,10 @@ fun LogInScreen(onRegisterClick:()->Unit,onBackClick:()->Unit,onHomeClick:()->Un
             containerColor = buttonContentColor,
             contentColor = Color.White,
             onClick = {
-                /*authManager.signIn(
-                    email=email,
-                    password=password,
-                    onSuccess = {
-                        onHomeClick()
-                    }
-                )*/
-                onHomeClick()
+                viewModel.login(
+                    authManager = authManager,
+                    onSuccess = onHomeClick
+                )
             })
     }
 }

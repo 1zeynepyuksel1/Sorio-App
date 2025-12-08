@@ -3,47 +3,70 @@ package com.zeynep1yuksel.baseapp.data
 import android.content.Context
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
+import com.zeynep1yuksel.baseapp.model.SorioUser
+
 class SorioAuth(private val context: Context) {
+
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    fun signUp(email: String, password: String, onSuccess: () -> Unit) {
-
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(context, "Geçersiz email formatı!", Toast.LENGTH_SHORT).show()
-            return
-        }
+    private val repository = SorioRepository()
+    fun signUp(
+        name: String,
+        surname: String,
+        email: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
         auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { gorev ->
-                if (gorev.isSuccessful) {
-                    val user = auth.currentUser
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val firebaseUser = auth.currentUser
+                    val uid = firebaseUser?.uid
 
-                    user?.sendEmailVerification()
-                        ?.addOnCompleteListener { mailGorevi ->
-                            if (mailGorevi.isSuccessful) {
-                                Toast.makeText(context, "Doğrulama maili gönderildi! Lütfen kutunu kontrol et.", Toast.LENGTH_LONG).show()
+                    if (uid != null) {
+                        val newUser = SorioUser(
+                            uid = uid,
+                            name = name,
+                            surname = surname,
+                            email = email
+                        )
+                        repository.saveUser(
+                            user = newUser,
+                            onSuccess = {
                                 onSuccess()
+                            },
+                            onFailure = { errorMsg ->
+                                Toast.makeText(context, "Veritabanı Hatası: $errorMsg", Toast.LENGTH_LONG).show()
+                                onFailure()
                             }
-                        }
+                        )
+                    }
                 } else {
-                    val hata = gorev.exception?.localizedMessage ?: "Hata oluştu."
-                    Toast.makeText(context, hata, Toast.LENGTH_LONG).show()
+                    val error = task.exception?.localizedMessage ?: "Kayıt başarısız."
+                    Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                    onFailure()
                 }
             }
     }
-    fun signIn(email: String, password: String, onSuccess: () -> Unit) {
+    fun logIn(
+        email: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
         auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { gorev ->
-                if (gorev.isSuccessful) {
-                    val user = auth.currentUser
-                    if (user != null && user.isEmailVerified) {
-                        Toast.makeText(context, "Hoş geldin!", Toast.LENGTH_SHORT).show()
-                        onSuccess()
-                    } else {
-                        Toast.makeText(context, "Lütfen önce mail adresini doğrula!", Toast.LENGTH_LONG).show()
-                        auth.signOut()
-                    }
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    onSuccess()
                 } else {
-                    Toast.makeText(context, "Giriş Başarısız: Şifre veya Email yanlış.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Giriş Başarısız. Kontrol edin.", Toast.LENGTH_SHORT).show()
+                    onFailure()
                 }
             }
+    }
+    fun signOut() {
+        auth.signOut()
     }
 }
