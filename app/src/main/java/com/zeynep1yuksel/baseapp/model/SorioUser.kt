@@ -6,5 +6,6 @@ data class SorioUser(
         val surname:String="",
         val email:String="",
         val role:String="student",
-        val photoUrl:String=""
+        val photoUrl:String="",
+        val dailyGoalHours:Int=4
         )

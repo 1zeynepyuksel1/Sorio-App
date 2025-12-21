@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zeynep1yuksel.baseapp.R
 import com.zeynep1yuksel.baseapp.ui.components.SorioButton
+import com.zeynep1yuksel.baseapp.ui.home.HomeScreen
 import com.zeynep1yuksel.baseapp.ui.theme.backgroundColor
 import com.zeynep1yuksel.baseapp.ui.theme.buttonContentColor
 import com.zeynep1yuksel.baseapp.ui.theme.grayText
@@ -34,16 +35,19 @@ val textFont= FontFamily(
 @Composable
 fun StartScreen(
     onLoginClick: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    onHomeClick:()->Unit
 ) {
     Column(modifier= Modifier
         .fillMaxSize()
         .background(
-            color= backgroundColor
+            color = backgroundColor
         )
         .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally){
-        Box(modifier= Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center){
+        Box(modifier= Modifier
+            .weight(1f)
+            .fillMaxWidth(), contentAlignment = Alignment.Center){
             Column(horizontalAlignment = Alignment.CenterHorizontally){
                 Text("sorio",
                     fontFamily = logoFont,
@@ -66,13 +70,16 @@ fun StartScreen(
 
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(bottom=50.dp)){
+            SorioButton(text="Direct Acccess",
+                containerColor=buttonContentColor,
+                contentColor=Color.White,
+                onClick = onHomeClick
+            )
             Text("Already a Sorio?",
                 fontFamily = textFont,
                 color = Color.DarkGray,
                 fontSize = 15.sp
-
             )
-            //Spacer(modifier=Modifier.height(10.dp))
             SorioButton(text="Log In",
                 containerColor=buttonContentColor,
                 contentColor=Color.White,
@@ -92,7 +99,7 @@ fun StartScreen(
 @Preview
 @Composable
 private fun StartScreenPreview() {
-    StartScreen(onLoginClick = {}, onRegisterClick = {})
+    StartScreen(onLoginClick = {}, onRegisterClick = {}, onHomeClick = {})
 }
 
 

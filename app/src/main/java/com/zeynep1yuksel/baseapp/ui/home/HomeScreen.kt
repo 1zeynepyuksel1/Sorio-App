@@ -1,16 +1,8 @@
 package com.zeynep1yuksel.baseapp.ui.home
 
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -40,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,17 +50,32 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.zeynep1yuksel.baseapp.ml.SorioClassifier
+import com.zeynep1yuksel.baseapp.model.TimerStatus
 import com.zeynep1yuksel.baseapp.ui.auth.logoFont
 import com.zeynep1yuksel.baseapp.ui.components.QuestionPostCard
 import com.zeynep1yuksel.baseapp.ui.theme.backgroundColor
 import com.zeynep1yuksel.baseapp.ui.theme.buttonContentColor
 
+
 data class BottomNavItem(val label: String, val icon: ImageVector)
+
+val FocusBackground = Color(0xFF0B132B)
+val SoftGray = Color(0xFF636E72)
+val DarkText = Color(0xFF2D3436)
+
 @Composable
-fun HomeScreen(viewModel: HomeViewModel= viewModel()) {
-    val context = LocalContext.current
-    var selectedTab by remember{mutableStateOf(0)}
-    val classifier = remember { SorioClassifier(context) }
+fun HomeScreen(
+    viewModel: HomeViewModel = viewModel(),
+    timerViewModel: TimerViewModel = viewModel(),
+    questionViewModel: QuestionViewModel=viewModel()
+) {
+    var myBackgroundColor by remember { mutableStateOf(backgroundColor) }
+    var myDarkBlue by remember { mutableStateOf(buttonContentColor) }
+    var myGray by remember { mutableStateOf(Color.Gray) }
+    val timerState by timerViewModel.timerState.collectAsState()
+    val formattedTime = formatTime(timerState.studyTimeSeconds)
+    val motivationText by timerViewModel.currentMotivation.collectAsState()
+    var selectedTab by remember { mutableStateOf(0) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var resultText by remember { mutableStateOf("Analiz ediliyor...") }
     val navItems = listOf(
@@ -77,30 +85,9 @@ fun HomeScreen(viewModel: HomeViewModel= viewModel()) {
         BottomNavItem("Timer", Icons.Default.Timer),
         BottomNavItem("Profile", Icons.Default.Person)
     )
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        if (uri != null) {
-            selectedImageUri = uri
-            try {
-                val bitmap = if (Build.VERSION.SDK_INT < 28) {
-                    MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-                } else {
-                    val source = ImageDecoder.createSource(context.contentResolver, uri)
-                    ImageDecoder.decodeBitmap(source).copy(Bitmap.Config.ARGB_8888, true)
-                }
-                val sonuc = classifier.classify(bitmap)
-                resultText = sonuc
-                selectedTab = 0
-
-            } catch (e: Exception) {
-                Toast.makeText(context, "Hata: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-    val display=if(viewModel.currentUser!=null){
+    val display = if (viewModel.currentUser != null) {
         "${viewModel.currentUser?.name} ${viewModel.currentUser?.surname}"
-    }else{
+    } else {
         "Loading"
     }
     Scaffold(
@@ -109,45 +96,43 @@ fun HomeScreen(viewModel: HomeViewModel= viewModel()) {
                 containerColor = Color.White,
                 tonalElevation = 8.dp
             ) {
-                navItems.forEachIndexed { index,item->
-                NavigationBarItem(
-                    selected = selectedTab == index && index!=2,
-                    onClick = {
-                        if(index==2){
-                            galleryLauncher.launch("image/*")
-                        }else{
+                navItems.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        selected = selectedTab == index && index != 2,
+                        onClick = {
                             selectedTab=index
-                        }
-                    },
-                    icon={
-                        Icon(
-                            imageVector = item.icon,
-                            contentDescription = item.label,
-                            modifier=Modifier.size(28.dp),
-                            tint=if(index==2) buttonContentColor else LocalContentColor.current
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.label,
+                                modifier = Modifier.size(28.dp),
+                                tint = if (index == 2) buttonContentColor else LocalContentColor.current
+                            )
+                        },
+                        label = {
+                            if (selectedTab == index && index != 2) {
+                                Text(item.label, fontFamily = logoFont, fontSize = 10.sp)
+                            }
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = myDarkBlue,
+                            indicatorColor = myBackgroundColor,
+                            unselectedIconColor = Color.DarkGray
                         )
-                    },
-                    label={
-                        if(selectedTab==index && index !=2){
-                            Text(item.label, fontFamily = logoFont, fontSize = 10.sp)
-                        }
-                    },
-                    colors= NavigationBarItemDefaults.colors(
-                        selectedIconColor = buttonContentColor,
-                        indicatorColor = backgroundColor,
-                        unselectedIconColor = Color.Gray
                     )
-                )
-            }
+                }
             }
         },
-        containerColor = backgroundColor,
+        containerColor = myBackgroundColor,
     ) { paddingValues ->
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
-            .padding(horizontal = 24.dp)) {
-            Spacer(modifier=Modifier.height(20.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 24.dp)
+        ) {
+            Spacer(modifier = Modifier.height(20.dp))
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -158,12 +143,12 @@ fun HomeScreen(viewModel: HomeViewModel= viewModel()) {
                         text = "sorio",
                         fontSize = 35.sp,
                         fontFamily = logoFont,
-                        color = buttonContentColor
+                        color = myDarkBlue
                     )
                     Text(
                         text = "ready to learn?",
                         fontSize = 14.sp,
-                        color = Color.DarkGray
+                        color = myGray
                     )
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -179,28 +164,63 @@ fun HomeScreen(viewModel: HomeViewModel= viewModel()) {
                             imageVector = Icons.Default.Person,
                             contentDescription = "profile",
                             modifier = Modifier.padding(10.dp),
-                            tint = buttonContentColor
+                            tint = myDarkBlue
                         )
                     }
-                    Text(display)
+                    Text(display, color = myDarkBlue)
                 }
             }
             Spacer(modifier = Modifier.height(32.dp))
-            when(selectedTab){
-                0->HomeContent(selectedImageUri,resultText)
-                1->NotificationContent()
-                2->{}
-                3->TimerContent()
-                4->ProfileContent()
+            when (selectedTab) {
+                0 -> {
+                    HomeContent(selectedImageUri, resultText)
+                    myBackgroundColor = backgroundColor
+                    myDarkBlue = buttonContentColor
+                    myGray = Color.DarkGray
+                }
+
+                1 -> {
+                    NotificationContent()
+                    myBackgroundColor = backgroundColor
+                    myDarkBlue = buttonContentColor
+                    myGray = Color.DarkGray
+                }
+
+                2 -> {
+                    AddQuestionContent ()
+                }
+                3 -> {
+                    TimerContent(
+                        formattedTime = formattedTime,
+                        timerStatus = timerState.status,
+                        onToggleClick = timerViewModel::toggleTimer,
+                        onResetClick = timerViewModel::resetTimer,
+                        onSaveClick = timerViewModel::saveTime,
+                        studyTimeSeconds = timerState.studyTimeSeconds,
+                        motivationText = motivationText
+                    )
+                    myBackgroundColor = FocusBackground
+                    myDarkBlue = backgroundColor
+                    myGray = Color.White
+                }
+
+                4 -> {
+                    ProfileContent()
+                    myBackgroundColor = backgroundColor
+                    myDarkBlue = buttonContentColor
+                    myGray = Color.DarkGray
+                }
             }
         }
     }
 }
+
 @Preview
 @Composable
 private fun PreviewHomeScreen() {
     HomeScreen()
 }
+
 @Composable
 fun HomeContent(imageUri: Uri?, resultText: String) {
     if (imageUri != null) {
@@ -208,7 +228,9 @@ fun HomeContent(imageUri: Uri?, resultText: String) {
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(4.dp),
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth().height(320.dp) // Yüksekliği artırdık
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(320.dp)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -218,11 +240,11 @@ fun HomeContent(imageUri: Uri?, resultText: String) {
                 Image(
                     painter = rememberAsyncImagePainter(imageUri),
                     contentDescription = null,
-                    modifier = Modifier.size(200.dp).padding(10.dp),
+                    modifier = Modifier
+                        .size(200.dp)
+                        .padding(10.dp),
                     contentScale = ContentScale.Crop
                 )
-
-                // YAPAY ZEKA SONUCU
                 Text(
                     text = resultText,
                     color = buttonContentColor,
@@ -232,8 +254,7 @@ fun HomeContent(imageUri: Uri?, resultText: String) {
                 )
             }
         }
-    }
-    else{
+    } else {
         Text(
             "Community",
             fontSize = 20.sp,
@@ -241,11 +262,11 @@ fun HomeContent(imageUri: Uri?, resultText: String) {
             color = buttonContentColor
         )
         Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn(contentPadding = PaddingValues(bottom=100.dp)){
-            items(5){index->
+        LazyColumn(contentPadding = PaddingValues(bottom = 100.dp)) {
+            items(5) { index ->
                 QuestionPostCard(
                     userName = "Student $index",
-                    subject = if(index%2==0) "Matematik * Türev" else "Fizik * Kuvvet",
+                    subject = if (index % 2 == 0) "Matematik * Türev" else "Fizik * Kuvvet",
                     questionPreview = "Soru Fotoğrafı *$index"
                 )
             }
@@ -253,32 +274,15 @@ fun HomeContent(imageUri: Uri?, resultText: String) {
     }
 
 }
-@Composable
-fun ProfileContent() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Profile page", color = Color.Gray)
-    }
-}
-@Composable
-fun TimerContent() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(Icons.Default.Timer, contentDescription = null, modifier = Modifier.size(50.dp), tint = buttonContentColor)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("00:00:00", fontSize = 40.sp, fontFamily = logoFont, color = buttonContentColor)
-            Text("Focus mode", fontFamily = logoFont, color = Color.Gray)
-        }
-    }
-}
-@Composable
-fun NotificationContent() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(Icons.Default.Notifications, contentDescription = null, modifier = Modifier.size(50.dp), tint = Color.Gray)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("No notification yet.", fontFamily = logoFont, color = Color.Gray)
-        }
-    }
-}
+
+
+
+
+
+
+
+
+
+
 
 

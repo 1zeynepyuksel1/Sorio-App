@@ -13,6 +13,7 @@ class HomeViewModel: ViewModel() {
     val auth= FirebaseAuth.getInstance()
     var currentUser by mutableStateOf<SorioUser?>(null)
     var isLoading by mutableStateOf(false)
+
     init {
         fetchCurrentUserProfile()
     }
@@ -33,5 +34,4 @@ class HomeViewModel: ViewModel() {
             )
         }
     }
-
 }

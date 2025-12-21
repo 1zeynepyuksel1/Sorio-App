@@ -54,17 +54,23 @@ import com.zeynep1yuksel.baseapp.ui.theme.buttonContentColor
 import com.zeynep1yuksel.baseapp.ui.theme.darkBlue
 
 @Composable
-fun SorioButton(text: String, containerColor: Color, contentColor: Color,onClick:()->Unit) {
+fun SorioButton(
+    text: String,
+    containerColor: Color,
+    contentColor: Color,
+    onClick:()->Unit,
+    enabled:Boolean=true,
+    modifier: Modifier = Modifier.fillMaxWidth().height(50.dp)
+) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor.copy(0.85f),
-            contentColor = contentColor
+            contentColor = contentColor,
+            disabledContainerColor = containerColor.copy(alpha = 0.5f)
         ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(5.dp),
+        modifier = modifier,
         elevation = ButtonDefaults.buttonElevation(10.dp)
     ) {
         Text(text)
@@ -74,16 +80,14 @@ fun SorioButton(text: String, containerColor: Color, contentColor: Color,onClick
 fun SamplePasswordField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String = "Password" // Varsayılan etiket
+    label: String = "Password"
 ) {
-    // Şifrenin görünüp görünmediğini takip eden değişken
     var passwordVisible by remember { mutableStateOf(false) }
 
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
 
-        // Etiket (Senin fontunla)
         label = {
             Text(
                 text = label,
@@ -92,7 +96,6 @@ fun SamplePasswordField(
             )
         },
 
-        // Sol İkon (Kilit)
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Lock,
@@ -100,15 +103,12 @@ fun SamplePasswordField(
                 tint = Color.Gray
             )
         },
-
-        // Sağ İkon (Göz - Tıklanabilir)
         trailingIcon = {
             val image = if (passwordVisible)
-                Icons.Default.Visibility     // Açık Göz
+                Icons.Default.Visibility
             else
-                Icons.Default.VisibilityOff  // Kapalı Göz
+                Icons.Default.VisibilityOff
 
-            // Butona basılınca 'passwordVisible' değerini tersine çevirir (true <-> false)
             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                 Icon(
                     imageVector = image,
@@ -118,15 +118,10 @@ fun SamplePasswordField(
             }
         },
 
-        // --- SİHİRLİ KISIM ---
-        // Görünürse: VisualTransformation.None (Düz yazı)
-        // Gizliyse: PasswordVisualTransformation (Noktalı)
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-
-        // Tasarım Ayarları (Senin diğer alanlarınla aynı)
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = buttonContentColor, // Odaklanınca senin rengin
+            focusedBorderColor = buttonContentColor,
             focusedLabelColor = buttonContentColor,
             cursorColor = buttonContentColor,
 
@@ -137,11 +132,11 @@ fun SamplePasswordField(
             unfocusedContainerColor = Color.White
         ),
 
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password), // Klavye şifre modunda açılsın
-        singleLine = true, // Tek satır
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        singleLine = true,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp) // Altına biraz boşluk
+            .padding(bottom = 16.dp)
     )
 }
 @Composable

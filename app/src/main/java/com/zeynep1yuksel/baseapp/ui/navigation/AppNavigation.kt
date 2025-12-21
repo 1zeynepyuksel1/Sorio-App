@@ -17,7 +17,8 @@ fun AppNavigation() {
         composable("start"){
             StartScreen(
                 onLoginClick = {navController.navigate("login")},
-                onRegisterClick = {navController.navigate("signup")})
+                onRegisterClick = {navController.navigate("signup")},
+                onHomeClick = {navController.navigate("home")})
         }
         composable("login"){
             LogInScreen(onRegisterClick = {navController.navigate("signup"){popUpTo("start"){inclusive=false} } },

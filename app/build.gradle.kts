@@ -63,6 +63,9 @@ dependencies {
     implementation(libs.androidx.ui.text)
     implementation(libs.ui)
     implementation(libs.androidx.room.external.antlr)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.animation)
+    implementation(libs.material3)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
@@ -93,4 +96,6 @@ dependencies {
     implementation("org.tensorflow:tensorflow-lite:2.14.0")
     implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
     implementation("org.tensorflow:tensorflow-lite-metadata:0.4.4")
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
 }

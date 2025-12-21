@@ -18,7 +18,10 @@ coil = "2.7.0"
 ksp = "2.0.21-1.0.27"
 uiText = "1.9.5"
 ui = "1.9.5"
-roomExternalAntlr = "2.8.4" # Kotlin versiyonunla uyumlu olmalı!
+roomExternalAntlr = "2.8.4"
+lifecycleViewmodelKtx = "2.10.0"
+animation = "1.10.0"
+material3 = "1.4.0" # Kotlin versiyonunla uyumlu olmalı!
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -58,6 +61,9 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 androidx-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiText" }
 ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 androidx-room-external-antlr = { group = "androidx.room", name = "room-external-antlr", version.ref = "roomExternalAntlr" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+androidx-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "animation" }
+material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 
 
 [plugins]
